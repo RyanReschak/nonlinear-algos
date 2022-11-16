@@ -6,6 +6,7 @@ syms x1 x2 alpha
 %vars = a vector of your symbolic variables ex: [x_1, x_2]
 %k = max iterations before termination
 x_0 = [0.5, 0.5];
+x_prev = x_0+100;
 vars = [x1, x2];
 k = 10;
 func = 2*x1*x2 + 3*x2 - x1^2 -2*x2^2;
@@ -17,7 +18,8 @@ x_final = x_0;
 grad = gradient(func,vars)
 i = 0;
 tic
-while i < k
+while abs(norm(x_final-x_prev)) > 0.001
+    x_prev = x_final;
     y_old = subs(func, vars, x_final);
     for j = 1:annel_iters
         %find alpha equation
