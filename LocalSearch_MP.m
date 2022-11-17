@@ -15,13 +15,13 @@ syms x1 x2 alpha
 %func = 2*x1*x2 + 3*x2 - x1^2 -2*x2^2;
 %Equation 2:
 %x_0 = [5, 20];
-vars = [x1,x2];
-func = -abs(x1)-abs(x2)-2*sin(x1)-3*sin(x2)+5; 
+%vars = [x1,x2];
+%func = -abs(x1)-abs(x2)-2*sin(x1)-3*sin(x2)+5; 
 %func = -abs(x1)-sin(x1);
 %func = -abs(x2)-2*sin(x1)-1.5*sin(x2);
 %Equation 3
-%vars = [x1, x2];
-%func = -(2*x1-1)*(x1+1)*(x1-2)*(x1+2)-(x2-2)*(x2+2);
+vars = [x1, x2];
+func = -(2*x1-1)*(x1+1)*(x1-2)*(x1+2)-(x2-2)*(x2+2);
 
 k = 10;
 
