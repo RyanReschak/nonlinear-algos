@@ -10,4 +10,7 @@ Equations Tested:
 sol: (1.5,1.5)
 
 2) f(x1) = 3200/x1 + 4000 + x1
-sol: 
+sol:
+
+3) f(x) = |x| + 2*sin(x)
+sol: 0 
