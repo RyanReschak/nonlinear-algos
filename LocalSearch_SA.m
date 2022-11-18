@@ -19,13 +19,13 @@ syms x1 x2 alpha
 x_0 = [5, 20];
 vars = [x1,x2];
 func = -abs(x1)-abs(x2)-2*sin(x1)-3*sin(x2)+5;
-% func = -abs(x1)-sin(x1);
-% func = -abs(x2)-2*sin(x1)-1.5*sin(x2);
+%func = -abs(x1)-sin(x1);
+%func = -abs(x2)-2*sin(x1)-1.5*sin(x2);
 
 %Equation 3
-% x_0 = [-100, -100];
-% vars = [x1, x2];
-% func = -(2*x1-1)*(x1+1)*(x1-2)*(x1+2)-(x2-2)*(x2+2);
+%x_0 = [-100, -100];
+%vars = [x1, x2];
+%func = -(2*x1-1)*(x1+1)*(x1-2)*(x1+2)-(x2-2)*(x2+2);
 
 figure(1)
 fsurf(func,[-10 10 -10 10])
@@ -111,4 +111,65 @@ while abs(norm(x_final-x_prev)) > 0.001 & i < k
     t = t/(t*annel+1); 
 end
 double(subs(func, vars, x_final))
+toc
+%% SA Random Search
+%Three major parameters: starting x, k, and NN. 
+i = 0;
+t = 0.9;
+x_final = randi([-100,100], 1, length(vars));
+NN = [-5,5];
+k = 20;
+tic
+while i < k
+    
+    y_old = double(subs(func, vars, x_final));
+    for j = 1:annel_iters
+        
+        %Check Nearest Neighbors
+        x = double(x_final' + randi(NN, length(vars),1));
+        
+        %cost calculation
+        cost = double(y_old - subs(func, vars, x'));
+        
+        %Acceptance if cost is negative or based on the probability
+        %cost is negative if y_old is less than x which we are trying to
+        %maximize (opposite sign if minimize).
+        p = rand;
+        if cost <= 0 | p  < exp(-cost/t)
+            x_final = x';
+            y_old = subs(func, vars, x_final);
+        end
+        
+    end
+    i = i + 1;
+    t = t/(t*annel+1); 
+end
+double(x_final)
+double(subs(func, vars, x_final))
+toc
+
+%With Newtons Method Improvement
+%The hope is that with SA it gets it in the ball park and then NM
+%it gets closer
+x_better = x_final;
+grad = gradient(func,vars);
+H = hessian(func, vars);
+x_prev = x_better + 100;
+tic
+while abs(norm(x_better-x_prev)) > 0.001
+    x_prev = x_better;
+    
+    %find alpha equation
+    alpha_eq = x_better' + alpha*subs(inv(H),vars,x_better)*subs(grad, vars, x_better);
+    alpha_opt = solve(diff(simplify(subs(func,vars,alpha_eq')))==0, alpha, 'PrincipalValue', true);
+    
+    if(isempty(alpha_opt))
+        x = x_better' + 0.25*subs(inv(H),vars,x_better)*subs(grad, vars, x_better); %if no optimal solution then just alpha = 0.25
+    else
+        x = x_better' + alpha_opt*subs(inv(H),vars,x_better)*subs(grad, vars, x_better);
+    end
+    x_better = double(x');
+end
+double(x_better)
+double(subs(func, vars, x_better))
 toc
