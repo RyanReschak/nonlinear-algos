@@ -1,6 +1,14 @@
-%Ryan Reschak, Scott Crowner
+%% Simulated annealing global optimum search method tester
+% This program employs simulated annealing to test its capability of
+% finding the global maximum among three example functions.
+% Usage: Run this first section first, then run the desired test section
+% Made by: Ryan Reschak, Scott Crowner
 clear
 clc
+
+% Data cell array for exporting
+Data = cell(2,6);
+Data{1,2} = 'avg time'; Data{1,3} = 'max time'; Data{1,4} = 'min time'; Data{1,5} = 'success rate'; Data{1,6} = 'best soln';
 
 syms x1 x2 alpha
 
@@ -9,7 +17,7 @@ syms x1 x2 alpha
 %vars = a vector of your symbolic variables ex: [x_1, x_2]
 %k = max iterations before termination
 
-n = 1;
+n = 3; % CHANGES FUNCTION TO BE USED
 
 switch n
     case 1
@@ -32,6 +40,7 @@ switch n
         Data{2,1} = 'Equation 3';
 end
 
+% Plotting
 figure(1)
 fsurf(func,[-10 10 -10 10])
 figure(2)
@@ -118,6 +127,9 @@ end
 double(subs(func, vars, x_final))
 toc
 %% SA Random Search
+% Chooses a random starting point on the domain x1, x2 = [-100, 100].
+% Runs this test 5 times
+
 %Three major parameters: starting x, k, and NN. 
 i = 0;
 t = 0.9;
@@ -125,13 +137,17 @@ x_final = randi([-100,100], 1, length(vars));
 NN = [-5,5];
 k = 20;
 
-best_value_list = zeros(1,5);
-f_best_truth = zeros(1,5);
-endTime = zeros(1,5);
-for attempt = 1:5
+trials = 5; % Number of trials
+best_value_list = zeros(1,trials);   % List of results for each of the five test trials
+f_best_truth = zeros(1,trials);      % Array of booleans tracking how often the method found the correct solution
+endTime = zeros(1,trials);           % List of run durations
 
-startTime = tic;
+% Loop through trials
+for attempt = 1:trials
 
+startTime = tic;    % START TIMER
+
+% Simulated Annealing
 while i < k
     
     y_old = double(subs(func, vars, x_final));
@@ -182,15 +198,17 @@ while abs(norm(x_better-x_prev)) > 0.001
     end
     x_better = double(x');
 end
-double(x_better);
-best_value = double(subs(func, vars, x_better));
-endTime(attempt) = toc(startTime);
-best_value_list(attempt) = best_value;
+double(x_better);   % Get x for the best solution
+best_value = double(subs(func, vars, x_better));    % Get f(x) for the best solution
+endTime(attempt) = toc(startTime);  % STOP TIMER
+best_value_list(attempt) = best_value;  % Store solution for this trial
 if abs(best_value-actual) < 0.1
-    f_best_truth(attempt) = 1;
+    f_best_truth(attempt) = 1;  % Store whether the correct solution was found
 end
 
 end
+
+% Select data to export:
 avgTime = mean(endTime);
 maxTime = max(endTime);
 minTime = min(endTime);
