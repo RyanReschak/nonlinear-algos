@@ -30,7 +30,7 @@ switch n
         %Equation 2:
         vars = [x1,x2];
         func = -abs(x1)-abs(x2)-2*sin(x1)-3*sin(x2)+5;
-        actual = 7.11;
+        actual = 7.28;
         Data{2,1} = 'Equation 2';
     otherwise        
         %Equation 3
@@ -54,11 +54,7 @@ k = 10;
 
 % Initialization
 num_start_points = 5;   % Number of starting points to test
-x_set = randi([-100,100], num_start_points, 2); % Starting x points
-f_initial_list = zeros(num_start_points, 1);    % Starting f(x) points
-for i=1:length(x_set(:,1))
-    f_initial_list(i,:) = subs(func, vars, x_set(i,:));
-end
+
 x_final_list = zeros(num_start_points, 2);  % Ending x points
 f_final_list = zeros(num_start_points, 1);  % Ending f(x) points
 grad = gradient(func,vars); % Gradient
@@ -72,35 +68,41 @@ endTime = zeros(1,trials);           % List of run durations
 % Loop through trials
 for attempt = 1:trials
 
-startTime = tic;    % START TIMER
-% Loop through each test point
-for j = 1:length(x_set(:,1))
-    j
-    x_final = x_set(j,:); % Initialize point tracker
-    x_prev = x_final+100; % Initialize previous loop iteration point - assume 100 is a large enough difference
-    i = 0;  % Iteration counter
-
-    % Steepest Acent Method
-    while abs(norm(x_final-x_prev)) > 0.001 && i < k
-        % Find alpha equation
-        alpha_eq = x_final' + alpha*subs(grad, vars, x_final);
-        alpha_opt = solve(diff(simplify(subs(simplify(func),vars,alpha_eq')))==0, alpha, 'PrincipalValue', true);
-        % Find optimal point
-        x_prev = x_final;
-        x = x_final' + alpha_opt*subs(grad, vars, x_final);
-        x_final = double(x');
-        i = i + 1;
+    x_set = randi([-100,100], num_start_points, 2); % Starting x points
+    f_initial_list = zeros(num_start_points, 1);    % Starting f(x) points
+    for i=1:length(x_set(:,1))
+        f_initial_list(i,:) = subs(func, vars, x_set(i,:));
     end
-    x_final_list(j,:) = x_final;    % Store x final
-    f_final_list(j,:) = subs(func, vars, x_final);  % Store function value
-end
-[best_value, best_index] = max(f_final_list); % Choose f(x) for the best solution
-x_best = x_final_list(best_index, :);   % Choose x for the best solution
-endTime(attempt) = toc(startTime);  % STOP TIMER
-best_value_list(attempt) = best_value;  % Store solution for this trial
-if abs(best_value-actual) < 0.1
-    f_best_truth(attempt) = 1;  % Store whether the correct solution was found
-end
+    
+    startTime = tic;    % START TIMER
+    % Loop through each test point
+    for j = 1:length(x_set(:,1))
+        j
+        x_final = x_set(j,:); % Initialize point tracker
+        x_prev = x_final+100; % Initialize previous loop iteration point - assume 100 is a large enough difference
+        i = 0;  % Iteration counter
+    
+        % Steepest Acent Method
+        while abs(norm(x_final-x_prev)) > 0.001 && i < k
+            % Find alpha equation
+            alpha_eq = x_final' + alpha*subs(grad, vars, x_final);
+            alpha_opt = solve(diff(simplify(subs(simplify(func),vars,alpha_eq')))==0, alpha, 'PrincipalValue', true);
+            % Find optimal point
+            x_prev = x_final;
+            x = x_final' + alpha_opt*subs(grad, vars, x_final);
+            x_final = double(x');
+            i = i + 1;
+        end
+        x_final_list(j,:) = x_final;    % Store x final
+        f_final_list(j,:) = subs(func, vars, x_final);  % Store function value
+    end
+    [best_value, best_index] = max(f_final_list); % Choose f(x) for the best solution
+    x_best = x_final_list(best_index, :)   % Choose x for the best solution
+    endTime(attempt) = toc(startTime);  % STOP TIMER
+    best_value_list(attempt) = best_value;  % Store solution for this trial
+    if abs(best_value-actual) < 0.1
+        f_best_truth(attempt) = 1;  % Store whether the correct solution was found
+    end
 
 end
 
@@ -120,11 +122,7 @@ writetable(Table, "data.xlsx",'Sheet',1,'Range','A1');
 
 % Initialization
 num_start_points = 5;   % Number of starting points to test
-x_set = randi([-100,100], num_start_points, 2); % Starting x points
-f_initial_list = zeros(num_start_points, 1);    % Starting f(x) points
-for i=1:length(x_set(:,1))
-    f_initial_list(i,:) = subs(func, vars, x_set(i,:));
-end
+
 x_final_list = zeros(num_start_points, 2);  % Ending x points
 f_final_list = zeros(num_start_points, 1);  % Ending f(x) points
 grad = gradient(func,vars); % Gradient
@@ -138,35 +136,41 @@ endTime = zeros(1,trials);           % List of run durations
 % Loop through trials
 for attempt = 1:trials
 
-startTime = tic;    % START TIMER
-% Loop through each test point
-for j = 1:length(x_set(:,1))
-    j
-    x_final = x_set(j,:); % Initialize point tracker
-    x_prev = x_final+100; % Initialize previous loop iteration point - assume 100 is a large enough difference
-    i = 0;  % Iteration counter
-
-    % Newton's Method
-    while abs(norm(x_final-x_prev)) > 0.001 & i < k
-        % Find alpha equation
-        alpha_eq = x_final' + alpha*subs(inv(H),vars,x_final)*subs(grad, vars, x_final);
-        alpha_opt = solve(diff(simplify(subs(func,vars,alpha_eq')))==0, alpha, 'PrincipalValue', true);
-        % Find optimal point
-        x_prev = x_final;
-        x = x_final' + alpha_opt*subs(inv(H),vars,x_final)*subs(grad, vars, x_final);
-        x_final = double(x');
-        i = i + 1;
+    x_set = randi([-100,100], num_start_points, 2); % Starting x points
+    f_initial_list = zeros(num_start_points, 1);    % Starting f(x) points
+    for i=1:length(x_set(:,1))
+        f_initial_list(i,:) = subs(func, vars, x_set(i,:));
     end
-    x_final_list(j,:) = x_final;    % Store x final
-    f_final_list(j,:) = subs(func, vars, x_final); % Store function value
-end
-[best_value, best_index] = max(f_final_list); % Choose f(x) for the best solution
-x_best = x_final_list(best_index, :);   % Choose x for the best solution
-endTime(attempt) = toc(startTime);  % STOP TIMER
-best_value_list(attempt) = best_value;  % Store solution for this trial
-if abs(best_value-actual) < 0.1
-    f_best_truth(attempt) = 1;  % Store whether the correct solution was found
-end
+    
+    startTime = tic;    % START TIMER
+    % Loop through each test point
+    for j = 1:length(x_set(:,1))
+        j
+        x_final = x_set(j,:); % Initialize point tracker
+        x_prev = x_final+100; % Initialize previous loop iteration point - assume 100 is a large enough difference
+        i = 0;  % Iteration counter
+    
+        % Newton's Method
+        while abs(norm(x_final-x_prev)) > 0.001 & i < k
+            % Find alpha equation
+            alpha_eq = x_final' + alpha*subs(inv(H),vars,x_final)*subs(grad, vars, x_final);
+            alpha_opt = solve(diff(simplify(subs(func,vars,alpha_eq')))==0, alpha, 'PrincipalValue', true);
+            % Find optimal point
+            x_prev = x_final;
+            x = x_final' + alpha_opt*subs(inv(H),vars,x_final)*subs(grad, vars, x_final);
+            x_final = double(x');
+            i = i + 1;
+        end
+        x_final_list(j,:) = x_final;    % Store x final
+        f_final_list(j,:) = subs(func, vars, x_final); % Store function value
+    end
+    [best_value, best_index] = max(f_final_list); % Choose f(x) for the best solution
+    x_best = x_final_list(best_index, :)   % Choose x for the best solution
+    endTime(attempt) = toc(startTime);  % STOP TIMER
+    best_value_list(attempt) = best_value;  % Store solution for this trial
+    if abs(best_value-actual) < 0.1
+        f_best_truth(attempt) = 1;  % Store whether the correct solution was found
+    end
 
 end
 
